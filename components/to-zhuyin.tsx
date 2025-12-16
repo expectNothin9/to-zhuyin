@@ -8,9 +8,17 @@ function firstCodepoint(value: string) {
   return Array.from(value).slice(0, 1).join("");
 }
 
-function ToZhuyin() {
-  const [value, setValue] = React.useState("");
+type ToZhuyinProps = {
+  preset?: string;
+};
+
+function ToZhuyin({ preset }: ToZhuyinProps) {
+  const [value, setValue] = React.useState(() => firstCodepoint(preset ?? ""));
   const isComposingRef = React.useRef(false);
+
+  React.useEffect(() => {
+    setValue(firstCodepoint(preset ?? ""));
+  }, [preset]);
 
   return (
     <div className="flex flex-col gap-2 p-4">
