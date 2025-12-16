@@ -31,6 +31,16 @@ function uniqPreserveOrder(values: string[]) {
   return out;
 }
 
+function normalizeMoedictZhuyin(raw: string): string {
+  // Moedict sometimes prefixes zhuyin with fullwidth parenthetical annotations like:
+  // "（`語音~）ㄨㄛˇ" -> "ㄨㄛˇ"
+  let s = raw.trim();
+  // Strip one or more leading "（...）" blocks.
+  // Note: uses fullwidth parens and fullwidth close-paren "）".
+  s = s.replace(/^(?:（[^）]*）\s*)+/g, "");
+  return s.trim();
+}
+
 function extractZhuyinFromMoedictJson(json: unknown): string[] {
   if (!isRecord(json)) return [];
   const h = json.h;
@@ -40,7 +50,10 @@ function extractZhuyinFromMoedictJson(json: unknown): string[] {
   for (const entry of h) {
     if (!isRecord(entry)) continue;
     const b = entry.b;
-    if (typeof b === "string" && b.trim()) zhuyin.push(b.trim());
+    if (typeof b === "string" && b.trim()) {
+      const cleaned = normalizeMoedictZhuyin(b);
+      if (cleaned) zhuyin.push(cleaned);
+    }
   }
   return uniqPreserveOrder(zhuyin);
 }

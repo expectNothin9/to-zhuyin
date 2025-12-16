@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { Input } from "@/components/ui/input";
 import { toZhuyin, type ToZhuyinResult } from "@/app/actions/toZhuyin";
+import { ZhuyinVertical } from "@/components/zhuyin-vertical";
 
 type ToZhuyinProps = {
   preset?: string;
@@ -21,39 +22,33 @@ function ToZhuyin({ preset }: ToZhuyinProps) {
     setValue((preset ?? "").trim());
   }, [preset]);
 
-  const runLookup = React.useCallback(
-    (raw: string) => {
-      const cleaned = raw.trim();
-      if (!cleaned) {
-        setResult(null);
-        return;
-      }
+  const runLookup = (raw: string) => {
+    const cleaned = raw.trim();
+    if (!cleaned) {
+      setResult(null);
+      return;
+    }
 
-      const requestId = ++requestIdRef.current;
-      startTransition(async () => {
-        const next = await toZhuyin(cleaned);
-        if (requestId !== requestIdRef.current) return;
-        setResult(next);
-      });
-    },
-    [startTransition]
-  );
+    const requestId = ++requestIdRef.current;
+    startTransition(async () => {
+      const next = await toZhuyin(cleaned);
+      if (requestId !== requestIdRef.current) return;
+      setResult(next);
+    });
+  };
 
-  const scheduleLookup = React.useCallback(
-    (raw: string) => {
-      if (debounceTimerRef.current != null) {
-        window.clearTimeout(debounceTimerRef.current);
-      }
-      debounceTimerRef.current = window.setTimeout(() => {
-        debounceTimerRef.current = null;
-        runLookup(raw);
-      }, 250);
-    },
-    [runLookup]
-  );
+  const scheduleLookup = (raw: string) => {
+    if (debounceTimerRef.current != null) {
+      window.clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = window.setTimeout(() => {
+      debounceTimerRef.current = null;
+      runLookup(raw);
+    }, 250);
+  };
 
   return (
-    <div className="flex gap-2 p-4">
+    <div className="flex w-full justify-center gap-2 p-4 items-center">
       <Input
         value={value}
         onChange={(e) => {
@@ -70,7 +65,6 @@ function ToZhuyin({ preset }: ToZhuyinProps) {
           setValue(next);
           runLookup(next);
         }}
-        placeholder="輸入字或詞"
         aria-label="Character"
         autoComplete="off"
         autoCorrect="off"
@@ -81,20 +75,13 @@ function ToZhuyin({ preset }: ToZhuyinProps) {
         className="size-16 rounded-xl p-0 text-center text-4xl leading-none md:text-4xl"
       />
 
-      <div className="min-h-10 text-sm text-muted-foreground">
+      <div className="text-sm text-muted-foreground">
         {isPending ? (
           <div>Loading…</div>
         ) : result?.ok ? (
-          <div className="flex flex-col gap-1">
-            <div className="text-2xl text-foreground">{result.bestGuess}</div>
-            {result.zhuyin.length > 1 ? (
-              <div className="flex flex-wrap gap-x-2 gap-y-1">
-                {result.zhuyin.map((z) => (
-                  <span key={z} className="rounded-md border px-2 py-1 text-xs">
-                    {z}
-                  </span>
-                ))}
-              </div>
+          <div className="text-base text-foreground leading-none">
+            {result.bestGuess ? (
+              <ZhuyinVertical value={result.bestGuess} />
             ) : null}
           </div>
         ) : result ? (
