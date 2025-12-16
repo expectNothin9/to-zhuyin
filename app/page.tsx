@@ -1,5 +1,5 @@
-import { ComponentExample } from "@/components/component-example";
+import { ToZhuyin } from "@/components/to-zhuyin";
 
 export default function Page() {
-return <ComponentExample />;
+  return <ToZhuyin />;
 }
