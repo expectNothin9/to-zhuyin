@@ -48,7 +48,7 @@ function ToZhuyin({ preset }: ToZhuyinProps) {
   };
 
   return (
-    <div className="flex w-full justify-center gap-2 p-4 items-center">
+    <div className="relative">
       <Input
         value={value}
         onChange={(e) => {
@@ -75,7 +75,7 @@ function ToZhuyin({ preset }: ToZhuyinProps) {
         className="size-16 rounded-xl p-0 text-center text-4xl leading-none md:text-4xl"
       />
 
-      <div className="text-sm text-muted-foreground">
+      <div className="absolute top-1/2 -translate-y-1/2 left-full translate-x-2 text-sm text-muted-foreground">
         {isPending ? (
           <div>Loading…</div>
         ) : result?.ok ? (

@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+
 const TONES = new Set(["˙", "ˊ", "ˇ", "ˋ"] as const);
 type ToneMark = "˙" | "ˊ" | "ˇ" | "ˋ";
 
@@ -18,36 +20,20 @@ export function parseZhuyinSyllable(raw: string): {
   return { base: s, tone: null };
 }
 
-export function splitZhuyinSyllables(raw: string): string[] {
-  return raw
-    .trim()
-    .split(/\s+/g)
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
-function ZhuyinSyllableVertical({
-  syllable,
+export function ZhuyinVertical({
+  value,
   className,
 }: {
-  syllable: string;
+  value: string;
   className?: string;
 }) {
-  const { base, tone } = parseZhuyinSyllable(syllable);
+  const { base, tone } = parseZhuyinSyllable(value);
   const chars = Array.from(base);
 
   if (!base) return null;
 
   return (
-    <span
-      className={[
-        // A little extra right padding so right-side tones don't overlap adjacent columns.
-        "relative inline-block",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
+    <div className={cn("relative", className)}>
       {tone === "˙" ? (
         // Neutral-tone dot: above the topmost symbol (per user preference).
         <span
@@ -75,25 +61,6 @@ function ZhuyinSyllableVertical({
           </span>
         ))}
       </span>
-    </span>
+    </div>
   );
-}
-
-export function ZhuyinVertical({
-  value,
-  className,
-}: {
-  value: string;
-  className?: string;
-}) {
-  const syllables = splitZhuyinSyllables(value);
-  if (syllables.length === 0) return null;
-
-  return syllables.map((syl, idx) => (
-    <ZhuyinSyllableVertical
-      key={`${syl}-${idx}`}
-      syllable={syl}
-      className={className}
-    />
-  ));
 }
