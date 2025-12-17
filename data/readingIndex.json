@@ -1,0 +1,13 @@
+{
+  "ㄑㄧ": [
+    {
+      "phraseId": "qi_tian_da_sheng",
+      "matches": [{ "char": "齊", "positions": [0] }]
+    },
+    {
+      "phraseId": "she_wo_qi_shei",
+      "matches": [{ "char": "其", "positions": [2] }]
+    }
+  ]
+}
+

@@ -3,17 +3,38 @@
 import * as React from "react";
 
 import { Input } from "@/components/ui/input";
-import { toZhuyin, type ToZhuyinResult } from "@/app/actions/toZhuyin";
+import {
+  suggestFourCharPhrases,
+  type SuggestPhrasesResult,
+} from "@/app/actions/toZhuyin";
 import { ZhuyinVertical } from "@/components/zhuyin-vertical";
 
 type ToZhuyinProps = {
   preset?: string;
 };
 
+function highlightPositions(text: string, positions: number[]) {
+  const pos = new Set(positions);
+  const chars = Array.from(text);
+  return (
+    <span className="tracking-wide">
+      {chars.map((ch, idx) =>
+        pos.has(idx) ? (
+          <span key={`${ch}-${idx}`} className="font-semibold underline">
+            {ch}
+          </span>
+        ) : (
+          <span key={`${ch}-${idx}`}>{ch}</span>
+        )
+      )}
+    </span>
+  );
+}
+
 function ToZhuyin({ preset }: ToZhuyinProps) {
   const [value, setValue] = React.useState(() => (preset ?? "").trim());
   const isComposingRef = React.useRef(false);
-  const [result, setResult] = React.useState<ToZhuyinResult | null>(null);
+  const [result, setResult] = React.useState<SuggestPhrasesResult | null>(null);
   const [isPending, startTransition] = React.useTransition();
   const debounceTimerRef = React.useRef<number | null>(null);
   const requestIdRef = React.useRef(0);
@@ -31,7 +52,7 @@ function ToZhuyin({ preset }: ToZhuyinProps) {
 
     const requestId = ++requestIdRef.current;
     startTransition(async () => {
-      const next = await toZhuyin(cleaned);
+      const next = await suggestFourCharPhrases(cleaned);
       if (requestId !== requestIdRef.current) return;
       setResult(next);
     });
@@ -90,12 +111,41 @@ function ToZhuyin({ preset }: ToZhuyinProps) {
               ? "Not found"
               : result.error === "BAD_INPUT"
               ? "Bad input"
+              : result.error === "NO_SUGGESTIONS"
+              ? "No suggestions"
               : "Upstream error"}
           </div>
         ) : (
           <div> </div>
         )}
       </div>
+
+      {result?.ok ? (
+        <div className="mt-4 text-sm">
+          <div className="text-muted-foreground">
+            key: <span className="font-mono">{result.keyNoTone ?? ""}</span>
+          </div>
+
+          {result.suggestions.length ? (
+            <ul className="mt-2 space-y-1">
+              {result.suggestions.map((sug) => {
+                const allPositions = sug.matches.flatMap((m) => m.positions);
+                const matchChars = sug.matches.map((m) => m.char).join(" / ");
+                return (
+                  <li key={sug.id} className="flex items-baseline gap-2">
+                    <span className="text-foreground">
+                      {highlightPositions(sug.text, allPositions)}
+                    </span>
+                    <span className="text-muted-foreground">
+                      ({matchChars})
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

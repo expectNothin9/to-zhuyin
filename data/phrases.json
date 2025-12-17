@@ -1,0 +1,15 @@
+[
+  {
+    "id": "qi_tian_da_sheng",
+    "text": "齊天大聖",
+    "readings": ["ㄑㄧˊ", "ㄊㄧㄢ", "ㄉㄚˋ", "ㄕㄥˋ"],
+    "readingKeySyllables": ["ㄑㄧ", "ㄊㄧㄢ", "ㄉㄚ", "ㄕㄥ"]
+  },
+  {
+    "id": "she_wo_qi_shei",
+    "text": "捨我其誰",
+    "readings": ["ㄕㄜˇ", "ㄨㄛˇ", "ㄑㄧˊ", "ㄕㄟˊ"],
+    "readingKeySyllables": ["ㄕㄜ", "ㄨㄛ", "ㄑㄧ", "ㄕㄟ"]
+  }
+]
+
