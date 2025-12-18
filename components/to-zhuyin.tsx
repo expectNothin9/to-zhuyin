@@ -3,7 +3,10 @@
 import * as React from "react";
 
 import { Input } from "@/components/ui/input";
-import { toZhuyin, type ToZhuyinResult } from "@/app/actions/toZhuyin";
+import {
+  wordToZhuyin,
+  type ToZhuyinResult,
+} from "@/app/actions/word-to-zhuyin";
 import {
   suggestFourCharPhrases,
   type SuggestFourCharPhrasesResult,
@@ -15,21 +18,31 @@ type ToZhuyinProps = {
   preset?: string;
 };
 
-function highlightPositions(text: string, positions: number[]) {
+function renderSuggestionPhrase({
+  text,
+  positions,
+  replacementChar,
+}: {
+  text: string;
+  positions: number[];
+  replacementChar: string;
+}) {
   const pos = new Set(positions);
   const chars = Array.from(text);
   return (
-    <span className="tracking-wide">
-      {chars.map((ch, idx) =>
-        pos.has(idx) ? (
-          <span key={`${ch}-${idx}`} className="font-semibold underline">
-            {ch}
+    <div className="tracking-wide inline-flex items-baseline gap-0.5 text-xl leading-none">
+      {chars.map((ch, idx) => {
+        const isMatch = pos.has(idx);
+        return (
+          <span
+            key={`${ch}-${idx}`}
+            className={isMatch ? "font-semibold text-[2em]" : "text-[1em]"}
+          >
+            {isMatch ? replacementChar : ch}
           </span>
-        ) : (
-          <span key={`${ch}-${idx}`}>{ch}</span>
-        )
-      )}
-    </span>
+        );
+      })}
+    </div>
   );
 }
 
@@ -64,7 +77,7 @@ function ToZhuyin({ preset }: ToZhuyinProps) {
 
     const requestId = ++requestIdRef.current;
     startTransition(async () => {
-      const zh = await toZhuyin(cleaned);
+      const zh = await wordToZhuyin(cleaned);
       if (requestId !== requestIdRef.current) return;
 
       setZhuyinResult(zh);
@@ -159,22 +172,23 @@ function ToZhuyin({ preset }: ToZhuyinProps) {
           </div>
 
           {phrasesResult?.ok ? (
-            <ul className="mt-2 space-y-1">
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
               {phrasesResult.suggestions.map((sug) => {
                 const allPositions = sug.matches.flatMap((m) => m.positions);
-                const matchChars = sug.matches.map((m) => m.char).join(" / ");
                 return (
-                  <li key={sug.id} className="flex items-baseline gap-2">
-                    <span className="text-foreground">
-                      {highlightPositions(sug.text, allPositions)}
-                    </span>
-                    <span className="text-muted-foreground">
-                      ({matchChars})
-                    </span>
-                  </li>
+                  <div
+                    key={sug.id}
+                    className="border border-border rounded-xl p-6"
+                  >
+                    {renderSuggestionPhrase({
+                      text: sug.text,
+                      positions: allPositions,
+                      replacementChar: zhuyinResult.word,
+                    })}
+                  </div>
                 );
               })}
-            </ul>
+            </div>
           ) : phrasesResult ? (
             <div className="mt-2 text-muted-foreground">
               {phrasesResult.error === "NO_SUGGESTIONS"

@@ -1,5 +1,3 @@
-"use server";
-
 export type ToZhuyinOk = {
   ok: true;
   word: string;
@@ -58,10 +56,10 @@ function extractZhuyinFromMoedictJson(json: unknown): string[] {
   return uniqPreserveOrder(zhuyin);
 }
 
-export async function toZhuyin(word: string): Promise<ToZhuyinResult> {
+export async function wordToZhuyin(word: string): Promise<ToZhuyinResult> {
   const cleaned = word.trim();
   if (!cleaned) return { ok: false, word, error: "BAD_INPUT" };
-  if (cleaned.length > 64) return { ok: false, word, error: "BAD_INPUT" };
+  if (cleaned.length > 64) return { ok: false, word: cleaned, error: "BAD_INPUT" };
 
   const url = `https://www.moedict.tw/a/${encodeURIComponent(cleaned)}.json`;
 
@@ -75,8 +73,7 @@ export async function toZhuyin(word: string): Promise<ToZhuyinResult> {
     return { ok: false, word: cleaned, error: "UPSTREAM_ERROR" };
   }
 
-  if (res.status === 404)
-    return { ok: false, word: cleaned, error: "NOT_FOUND" };
+  if (res.status === 404) return { ok: false, word: cleaned, error: "NOT_FOUND" };
   if (!res.ok) return { ok: false, word: cleaned, error: "UPSTREAM_ERROR" };
 
   let json: unknown;
@@ -87,8 +84,7 @@ export async function toZhuyin(word: string): Promise<ToZhuyinResult> {
   }
 
   const zhuyin = extractZhuyinFromMoedictJson(json);
-  if (zhuyin.length === 0)
-    return { ok: false, word: cleaned, error: "NOT_FOUND" };
+  if (zhuyin.length === 0) return { ok: false, word: cleaned, error: "NOT_FOUND" };
 
   return {
     ok: true,
@@ -97,3 +93,5 @@ export async function toZhuyin(word: string): Promise<ToZhuyinResult> {
     bestGuess: zhuyin[0] ?? null,
   };
 }
+
+
