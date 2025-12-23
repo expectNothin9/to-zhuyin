@@ -1,4 +1,4 @@
-import { PhraseArrangement } from "@/components/phrase-arrangement";
+import { PhraseArrangementClient } from "@/components/phrase-arrangement-client";
 
 type PageProps = {
   // Next.js 15+ makes dynamic APIs async; keep this compatible with both shapes.
@@ -22,7 +22,7 @@ export default async function Page({ searchParams }: PageProps) {
       <h1 className="text-xl font-semibold tracking-tight">
         Phrase arrangement
       </h1>
-      <PhraseArrangement p={p} m={m} />
+      <PhraseArrangementClient p={p} m={m} />
     </main>
   );
 }
