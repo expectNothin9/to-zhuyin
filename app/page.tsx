@@ -16,6 +16,12 @@ export default function Page() {
         >
           /zhuyin-to-four-word-phrases
         </Link>
+        <Link
+          href="/phrase-arrangement?p=綺天大聖&m=綺"
+          className="underline underline-offset-4 text-muted-foreground hover:text-foreground"
+        >
+          /phrase-arrangement?p=綺天大聖&amp;m=綺
+        </Link>
       </div>
     </main>
   );
